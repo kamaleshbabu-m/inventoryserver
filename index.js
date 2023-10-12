@@ -348,6 +348,11 @@ app.get('/api/fileind',function(req,res){
 
 });
  
+
+app.get('/api/sample',function(req,res){
+  res.send("hello");
+
+});
  
 
 app.listen(PORT, ()=>{
