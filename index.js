@@ -311,9 +311,12 @@ app.post('/api/fileupload',function(req,res){
     const buffer = Buffer. from(file.data.data); 
     // const file=req.body.file;
     // 'D:/'+file.name
-    if (fs.existsSync('./upload/'+file.name)) {
+    
+    if (fs.existsSync('https://inventoryserver-three.vercel.app/upload/'+file.name)) {
+    // if (fs.existsSync('./upload/'+file.name)) {
        res.send('file already exist') }
-    fs.writeFile('./upload/'+file.name,buffer , function (err) {
+       fs.writeFile('https://inventoryserver-three.vercel.app/upload/'+file.name,buffer , function (err) {
+    // fs.writeFile('./upload/'+file.name,buffer , function (err) {
       if (err) throw err;
       console.log('Saved!');
       res.send("file saved");
