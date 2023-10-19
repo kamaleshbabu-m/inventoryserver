@@ -15,6 +15,11 @@ import ('pdf2json');
 app.use(cors());
 app.use(fileupload());
 app.use(express.json());
+app.use('/images', express.static(__dirname + '/upload'));
+
+app.get('/', function (req, res, next) {
+  res.render('abc.txt');
+})
  
 
 app.post('/api/login',function(req,res){
@@ -69,11 +74,14 @@ app.get("/api/vendordetails", (req,res)=>{
 db.query("select vendetid , vendetname , vendetcontactperson , vendetemailid , vendetphonenumber , vendetaddress , vendetcreationtime , vendetvendorcode, vendetadminstate from vendordetails;", (err,result)=>{
     if(err) {
     console.log(err)
-    res.send(err)
+    res.send({
+      "code":400,
+      "success":err
+        });
     } 
     else{
        console.log(result) 
-       res.send(result)
+       res.send(result);
     }
 
 }
@@ -93,11 +101,17 @@ app.post("/api/vendordetails", (req,res)=>{
    db.query( sql, (err,result)=>{
     if(err) {
     console.log(err)
-    res.send(err)
+    res.send({
+      "code":400,
+      "success":err
+        });
     } 
     else{
        console.log(result) 
-       res.send(result)
+       res.send({
+        "code":200,
+        "success":result
+          });
     }
 
 }
@@ -113,17 +127,24 @@ app.post("/api/vendordetails", (req,res)=>{
     const Mail=req.body.vendetemailid;
     const Address=req.body.vendetaddress;
     const Mobile=req.body.vendetphonenumber;
-    const sql=`UPDATE vendordetails SET vendetname =  '${Name}', vendetcontactperson = '${Contact}', vendetemailid = '${Mail}', vendetphonenumber = '${Mobile}', vendetaddress = '${Address}' WHERE (vendetid = '${ID}')`;;
-    // console.log(req.body.vendetphonenumber);
-    //  res.send("vendoe added for"+req.body.vendetname); 
+    const createdTime=req.body.vendetcreationtime;
+    
+    const sql=`UPDATE vendordetails SET vendetname =  '${Name}', vendetcontactperson = '${Contact}', vendetemailid = '${Mail}', vendetphonenumber = '${Mobile}', vendetaddress = '${Address}',vendetcreationtime='${createdTime}' WHERE (vendetid = '${ID}')`;;
+   
      db.query( sql, (err,result)=>{
       if(err) {
       console.log(err)
-      res.send(err)
+      res.send({
+        "code":400,
+        "success":err
+          });
       } 
       else{
          console.log(result) 
-         res.send(result)
+         res.send({
+          "code":200,
+          "success":result
+            });
       }
   
   }
@@ -140,11 +161,17 @@ app.post("/api/vendordetails", (req,res)=>{
        db.query( sql, (err,result)=>{
         if(err) {
         console.log(err)
-        res.send(err)
+        res.send({
+          "code":400,
+          "success":err
+            });
         } 
         else{
            console.log(result) 
-           res.send(result)
+           res.send({
+            "code":200,
+            "success":result
+              });
         }
     
     }
@@ -156,11 +183,14 @@ app.post("/api/vendordetails", (req,res)=>{
         db.query("SELECT vendetid as id, vendetname as name from vendordetails", (err,result)=>{
             if(err) {
             console.log(err)
-            res.send(err)
+            res.send({
+              "code":400,
+              "success":err
+                });
             } 
             else{
                console.log(result) 
-               res.send(result)
+               res.send(result);
             }
         
         }
@@ -171,11 +201,14 @@ app.post("/api/vendordetails", (req,res)=>{
         db.query("SELECT purchaseid,invoiceid, vendetname , purchaseamount, purchaseinvoice, purchasepaymentstatus,purchasecreatedon, purchaseupdatedon from purchasedetails join vendordetails on vendetid=purchasevendorid;", (err,result)=>{
             if(err) {
             console.log(err)
-            res.send(err)
+            res.send({
+              "code":400,
+              "success":err
+                });
             } 
             else{
                console.log(result) 
-               res.send(result)
+               res.send(result);
             }
         
         }
@@ -196,11 +229,17 @@ app.post("/api/vendordetails", (req,res)=>{
            db.query( sql, (err,result)=>{
             if(err) {
             console.log(err)
-            res.send(err)
+            res.send({
+              "code":400,
+              "success":err
+                });
             } 
             else{
                console.log(result) 
-               res.send(result)
+               res.send({
+                "code":200,
+                "success":result
+                  });
             }
         
         }
@@ -209,32 +248,40 @@ app.post("/api/vendordetails", (req,res)=>{
           });
         
         
-          app.put("/api/purchasedetails", (req,res)=>{
-            const purchaseId=req.body.purchaseid;
-            const vendorId=req.body.vendetname;
-            const invoiceId=req.body.invoiceid;
-            const amount=req.body.purchaseamount;
-            const paystatus=req.body.purchasepaymentstatus;
-            const invoice=req.body.purchaseinvoice;
-           
-            const sql=`UPDATE purchasedetails  SET  invoiceid  = '${invoiceId}',  purchaseamount  = '${amount}',  purchasepaymentstatus  = '${paystatus}',  purchaseinvoice  = '${invoice}',purchaseupdatedon='NOW()'  WHERE ( purchaseid  = '${purchaseId}')`;;
-            
-             db.query( sql, (err,result)=>{
-              if(err) {
-              console.log(err)
-              res.send(err)
-              } 
-              else{
-                 console.log(result) 
-                 res.send(result)
-              }
-          
-          }
-              );
-             
-            });
+      app.put("/api/purchasedetails", (req,res)=>{
+       
+        const purchaseId=req.body.purchaseid;
+        const vendorId=req.body.vendetname;
+        const invoiceId=req.body.invoiceid;
+        const amount=req.body.purchaseamount;
+        const paystatus=req.body.purchasepaymentstatus;
+       
+      
         
-            app.delete("/api/purchasedetails", (req,res)=>{
+        const sql=`UPDATE purchasedetails  SET  invoiceid  = '${invoiceId}',  purchaseamount  = '${amount}',  purchasepaymentstatus  = '${paystatus}',purchaseupdatedon='NOW()'  WHERE ( purchaseid  = '${purchaseId}')`;;
+        
+          db.query( sql, (err,result)=>{
+          if(err) {
+          console.log(err)
+          res.send({
+            "code":400,
+            "success":err
+              });
+          } 
+          else{
+              console.log(result) 
+              res.send({
+                "code":200,
+                "success":result
+                  });
+          }
+      
+      }
+          );
+          
+        });
+        
+        app.delete("/api/purchasedetails", (req,res)=>{
               const ID=req.body.vendetid;
               
               const sql=`DELETE FROM vendordetails  WHERE (vendetid = '${ID}')`;
@@ -271,35 +318,7 @@ app.post("/api/vendordetails", (req,res)=>{
 
 
 
- app.post('/api/register',function(req,res){
- const name=req.body.name;
- const mail=req.body.mail;
- const phone=req.body.phone;
- const gender=req.body.gender;
-  const password=req.body.password;
- const adminstate=1;
-   
- db.query("INSERT INTO `userdetails2` (`userdetloginname`, `userdetpassword`, `userdetemailid`, `userdetphonenumber`, `userdetadminstate`, `userdetgender`) VALUES(? , ?, ? , ? , ? , ?)",[name , password,mail, phone,adminstate,gender], function (error, results, fields){
-        if (error) {
-    console.log("error ocurred",error);
-    res.send({
-      "code":400,
-      "failed":"error",
-    })
-  }else{
-    console.log('Results: ', results);
-
-    res.send({
-      "code":200,
-      "success":results,
-
-        });
-  }
-  });
-
-
-
-});
+ 
 
 app.post('/api/fileupload',function(req,res){
     // console.log(req.files['file']);
@@ -312,14 +331,26 @@ app.post('/api/fileupload',function(req,res){
     // const file=req.body.file;
     // 'D:/'+file.name
     
-    if (fs.existsSync('https://inventoryserver-three.vercel.app/upload/'+file.name)) {
-    // if (fs.existsSync('./upload/'+file.name)) {
-       res.send('file already exist') }
-       fs.writeFile('https://inventoryserver-three.vercel.app/upload/'+file.name,buffer , function (err) {
-    // fs.writeFile('./upload/'+file.name,buffer , function (err) {
+    // if (fs.existsSync('https://inventoryserver-three.vercel.app/upload/'+file.name)) {
+    if (fs.existsSync('./upload/'+file.name)) {
+      console.log('file already exist');
+      return res.status(200).json({
+        statuscode: 402,
+        statustype: `Failure`,
+        // entity: 'file already exist',
+        entity: file.name,
+      });
+   
+     }
+     
+    fs.writeFile('./upload/'+file.name,buffer , function (err) {
       if (err) throw err;
       console.log('Saved!');
-      res.send("file saved");
+      return res.status(200).json({
+        statuscode: 200,
+        statustype: `Success`,
+        entity: file.name,
+      });
     }); 
     
      
@@ -353,6 +384,32 @@ app.get('/api/sample',function(req,res){
   res.send("hello");
 
 });
+
+app.post('/api/saveinvoice',function(req,res){
+  console.log(req.body.id);
+  const id=req.body.id;
+  const file=req.body.filename;
+  console.log(req.body);
+  db.query(`UPDATE purchasedetails SET purchaseinvoice = '${file}' WHERE (purchaseid = '${id}');`, function (error, results, fields){
+        if (error) {
+    console.log("error ocurred",error);
+    res.send({
+      "code":400,
+      "failed":"Error"
+    })
+    }else{
+    console.log('Results: ', results);
+
+    res.send({
+      "code":200,
+      "success":results
+        });
+}
+});
+   
+});
+
+
  
 
 app.listen(PORT, ()=>{
